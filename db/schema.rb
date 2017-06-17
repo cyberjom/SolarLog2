@@ -369,6 +369,16 @@ ActiveRecord::Schema.define(version: 20170609182204) do
     t.index ["caption"], name: "index_locations_on_caption", unique: true
   end
 
+  create_table "logfiles", force: :cascade do |t|
+    t.string "fileurl", limit: 200, default: "", null: false
+    t.string "filename", limit: 200
+    t.integer "project_id"
+    t.boolean "processed", default: false, null: false
+    t.boolean "exception", default: false, null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "nodes", force: :cascade do |t|
     t.string "node_type", limit: 1, default: "", null: false
     t.integer "inverter_id"

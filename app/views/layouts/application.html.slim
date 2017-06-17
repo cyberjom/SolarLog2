@@ -1,0 +1,47 @@
+doctype html
+html lang="en"
+  head
+    meta charset="utf-8"
+    meta name="viewport" content="width=device-width, initial-scale=1.0"
+
+    title == content_for?(:title) ? yield(:title) : "SolarLog"
+
+    = stylesheet_link_tag "application"
+    = javascript_include_tag "application", "data-turbolinks-track" => true
+    / = javascript_include_tag "vendor/modernizr"
+    = csrf_meta_tag
+
+  body
+    .top-bar
+      .top-bar-left
+        ul.dropdown.menu data-dropdown-menu="" 
+          li.menu-text SolarLog
+          li
+            / = link_to "Browse Products", products_path
+          li= link_to "Price List"
+          li= link_to "Contact Us"
+          li= link_to "Cart"
+    == yield
+    /! Sidebar
+    aside.large-3.columns
+      h5 Categories
+      ul.side-nav
+        li
+          a href="#"  News
+        li
+          a href="#"  Code
+        li
+          a href="#"  Design
+        li
+          a href="#"  Fun
+        li
+          a href="#"  Weasels
+      .panel
+        h5 Featured
+        p Pork drumstick turkey fugiat. Tri-tip elit turducken pork chop in. Swine short ribs meatball irure bacon nulla pork belly cupidatat meatloaf cow.
+        a href="#"  Read More →
+    /! End Sidebar    
+    .row
+      .twelve.columns style=("background-color:#000000; height:30px; bottom:0;") 
+
+    

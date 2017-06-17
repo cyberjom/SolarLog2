@@ -1,0 +1,2 @@
+class Inverter < ApplicationRecord
+end

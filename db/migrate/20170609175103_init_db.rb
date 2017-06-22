@@ -202,7 +202,7 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.integer  "energy",                      default: 0                  
       t.integer  "energy_sum"
       t.boolean  "sky_photo_flag",          default: false
-      t.string   "sky_photo",              limit: 2, default: ""
+      t.string   "sky_photo",               limit: 2, default: ""
       t.boolean  "rain_flag",               default: false,  null: false
       t.decimal  "rain_rate",               precision: 10, scale: 2
       t.decimal  "rain_24h",                precision: 10, scale: 2
@@ -227,13 +227,27 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.decimal  "sim_energy",              precision: 10, scale: 2
       t.decimal  "sim_energy_sum",          precision: 10, scale: 2
       t.decimal  "pr",                      precision: 10, scale: 2
-      t.decimal  "ce",                      precision: 10, scale: 2      
+      t.decimal  "ce",                      precision: 10, scale: 2
+      t.decimal  "energy_cap",              precision: 10, scale: 2
+      t.jsonb    "opportunity",             null: false, default: '{}'
+      t.jsonb    "note",                    null: false, default: '{}'
     end
+    
+    add_index "energy_logs", ["created_at"], name: "index_energy_logs_on_created_at", using: :btree
+    add_index "energy_logs", ["log_at"], name: "index_log_at_on_created_at", using: :btree
+    add_index "energy_logs", ["logger_date"], name: "index_logger_date_on_created_at", using: :btree
+    add_index "energy_logs", ["billing_month"], name: "index_billing_month_on_created_at", using: :btree
+    
+    
+    
 
     create_table "energy_stats", force: :cascade do |t|
       t.datetime "created_at"
       t.datetime "updated_at"
       t.date     "logger_date",                         null: false
+      t.integer  "day"  
+      t.integer  "month"
+      t.integer  "year"
       t.decimal  "sim_insolation",          precision: 10, scale: 2
       t.decimal  "sim_energy",              precision: 10, scale: 2
       t.string   "billing_month",           limit: 6, default: ""
@@ -256,10 +270,42 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.decimal  "ird_min",                 precision: 10, scale: 2
       t.decimal  "ird_max",                 precision: 10, scale: 2
       t.decimal  "pr",                      precision: 10, scale: 2
-      t.decimal  "ce",                      precision: 10, scale: 2 
-      t.integer  "day"  
-      t.integer  "month"
-      t.integer  "year"
+      t.decimal  "ce",                      precision: 10, scale: 2
+      t.decimal  "energy_cap",              precision: 10, scale: 2
+      t.jsonb    "opportunity",             null: false, default: '{}'
+      t.jsonb    "note",                    null: false, default: '{}'
+      ##opportunity loss
+      # dirt loss
+      # ac wiring loss
+      # dc wiring loss
+      # down time loss
+      # power limit loss
+      # maintenance loss
+      # grid loss
+      # inverter loss
+      # string loss
+
+      ## Note
+      # explain downtime incident     
+      
+      t.integer  "pq_kwh"
+      t.integer  "pq_kwh_a" # peak
+      t.integer  "pq_kwh_b" # patial
+      t.integer  "pq_kwh_c" # off-peak
+      t.integer  "pq_kw_peak_a"
+      t.integer  "pq_kw_peak_b"     
+      t.integer  "pq_kw_peak_c"
+      t.integer  "pq_kvarh"
+      t.integer  "pq_kvah"
+      t.decimal  "pq_pf",                    precision: 10, scale: 2  
+      # t.decimal  "kwh_rate_a"                precision: 10, scale: 2  # 4.2097
+      # t.decimal  "kwh_rate_b"                precision: 10, scale: 2  # 2.6295
+      # t.decimal  "kwh_rate_c"                precision: 10, scale: 2  # 0
+      # t.decimal  "dmd_rate_a"                precision: 10, scale: 2  # 132.93
+      # t.decimal  "dmd_rate_b"                precision: 10, scale: 2  # 0
+      # t.decimal  "dmd_rate_c"                precision: 10, scale: 2  # 0
+      # t.decimal  "kvar_rate"                 precision: 10, scale: 2  # 56.07
+  
     end
     
     create_table "enums", force: :cascade do |t|

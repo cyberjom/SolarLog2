@@ -268,12 +268,22 @@ ActiveRecord::Schema.define(version: 20170609182204) do
     t.decimal "sim_energy_sum", precision: 10, scale: 2
     t.decimal "pr", precision: 10, scale: 2
     t.decimal "ce", precision: 10, scale: 2
+    t.decimal "energy_cap", precision: 10, scale: 2
+    t.jsonb "opportunity", default: "{}", null: false
+    t.jsonb "note", default: "{}", null: false
+    t.index ["billing_month"], name: "index_billing_month_on_created_at"
+    t.index ["created_at"], name: "index_energy_logs_on_created_at"
+    t.index ["log_at"], name: "index_log_at_on_created_at"
+    t.index ["logger_date"], name: "index_logger_date_on_created_at"
   end
 
   create_table "energy_stats", force: :cascade do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
     t.date "logger_date", null: false
+    t.integer "day"
+    t.integer "month"
+    t.integer "year"
     t.decimal "sim_insolation", precision: 10, scale: 2
     t.decimal "sim_energy", precision: 10, scale: 2
     t.string "billing_month", limit: 6, default: ""
@@ -297,9 +307,19 @@ ActiveRecord::Schema.define(version: 20170609182204) do
     t.decimal "ird_max", precision: 10, scale: 2
     t.decimal "pr", precision: 10, scale: 2
     t.decimal "ce", precision: 10, scale: 2
-    t.integer "day"
-    t.integer "month"
-    t.integer "year"
+    t.decimal "energy_cap", precision: 10, scale: 2
+    t.jsonb "opportunity", default: "{}", null: false
+    t.jsonb "note", default: "{}", null: false
+    t.integer "pq_kwh"
+    t.integer "pq_kwh_a"
+    t.integer "pq_kwh_b"
+    t.integer "pq_kwh_c"
+    t.integer "pq_kw_peak_a"
+    t.integer "pq_kw_peak_b"
+    t.integer "pq_kw_peak_c"
+    t.integer "pq_kvarh"
+    t.integer "pq_kvah"
+    t.decimal "pq_pf", precision: 10, scale: 2
   end
 
   create_table "enums", force: :cascade do |t|

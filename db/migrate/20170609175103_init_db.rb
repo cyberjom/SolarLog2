@@ -255,8 +255,6 @@ class InitDb < ActiveRecord::Migration[5.1]
     add_index "energy_logs", ["logger_date"], name: "index_logger_date_on_created_at", using: :btree
     add_index "energy_logs", ["billing_month"], name: "index_billing_month_on_created_at", using: :btree
     
-    
-    
 
     create_table "energy_stats", force: :cascade do |t|
       t.datetime "created_at"
@@ -271,6 +269,7 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.decimal  "sim_incident_insolation", precision: 10, scale: 2
       t.decimal  "sim_effective",           precision: 10, scale: 2
       t.string   "billing_month",           limit: 6, default: ""
+      t.integer  "project_id"
       t.integer  "power_min"
       t.integer  "power_max"
       t.integer  "meter_read",              default: 0 

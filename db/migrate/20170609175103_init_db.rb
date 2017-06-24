@@ -199,8 +199,12 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.integer  "power_avg"
       t.integer  "power_min"                 
       t.integer  "power_max"
-      t.integer  "energy",                      default: 0                  
-      t.integer  "energy_sum"
+      t.integer  "meter_read",              default: 0 
+      t.integer  "meter_kwh",               default: 0 
+      t.integer  "inverter_read",           default: 0 
+      t.integer  "inverter_kwh",            default: 0 
+      t.integer  "kwh",                     default: 0 
+      t.integer  "kwh_utilise",             default: 0   
       t.boolean  "sky_photo_flag",          default: false
       t.string   "sky_photo",               limit: 2, default: ""
       t.boolean  "rain_flag",               default: false,  null: false
@@ -231,6 +235,19 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.decimal  "energy_cap",              precision: 10, scale: 2
       t.jsonb    "opportunity",             null: false, default: '{}'
       t.jsonb    "note",                    null: false, default: '{}'
+      t.integer  "pq_read"
+      t.integer  "pq_exp_read"
+      t.integer  "pq_kvarh_read"
+      t.integer  "pq_kwh"
+      t.integer  "pq_kwh_a" # peak
+      t.integer  "pq_kwh_b" # patial
+      t.integer  "pq_kwh_c" # off-peak
+      t.integer  "pq_kw_peak_a"
+      t.integer  "pq_kw_peak_b"     
+      t.integer  "pq_kw_peak_c"
+      t.integer  "pq_kvarh"
+      t.integer  "pq_kvah"
+      t.decimal  "pq_pf",                      precision: 10, scale: 2  
     end
     
     add_index "energy_logs", ["created_at"], name: "index_energy_logs_on_created_at", using: :btree
@@ -244,16 +261,24 @@ class InitDb < ActiveRecord::Migration[5.1]
     create_table "energy_stats", force: :cascade do |t|
       t.datetime "created_at"
       t.datetime "updated_at"
+      t.integer  "logger_type"
       t.date     "logger_date",                         null: false
       t.integer  "day"  
       t.integer  "month"
       t.integer  "year"
+      t.decimal  "sim_kwh",                 precision: 10, scale: 2
       t.decimal  "sim_insolation",          precision: 10, scale: 2
-      t.decimal  "sim_energy",              precision: 10, scale: 2
+      t.decimal  "sim_incident_insolation", precision: 10, scale: 2
+      t.decimal  "sim_effective",           precision: 10, scale: 2
       t.string   "billing_month",           limit: 6, default: ""
       t.integer  "power_min"
       t.integer  "power_max"
-      t.integer  "energy",                  default: 0                  
+      t.integer  "meter_read",              default: 0 
+      t.integer  "meter_kwh",               default: 0 
+      t.integer  "inverter_read",           default: 0 
+      t.integer  "inverter_kwh",            default: 0 
+      t.integer  "kwh",                     default: 0 
+      t.integer  "kwh_utilise",             default: 0         
       t.decimal  "rain_hour",               precision: 10, scale: 2
       t.decimal  "rain_month",              precision: 10, scale: 2
       t.integer  "uv_index"
@@ -274,6 +299,8 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.decimal  "energy_cap",              precision: 10, scale: 2
       t.jsonb    "opportunity",             null: false, default: '{}'
       t.jsonb    "note",                    null: false, default: '{}'
+      t.integer  "billing_read",            default: 0 
+      t.integer  "billing_kwh",             default: 0 
       ##opportunity loss
       # dirt loss
       # ac wiring loss
@@ -288,6 +315,9 @@ class InitDb < ActiveRecord::Migration[5.1]
       ## Note
       # explain downtime incident     
       
+      t.integer  "pq_read"
+      t.integer  "pq_exp_read"
+      t.integer  "pq_kvarh_read"
       t.integer  "pq_kwh"
       t.integer  "pq_kwh_a" # peak
       t.integer  "pq_kwh_b" # patial
@@ -297,7 +327,7 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.integer  "pq_kw_peak_c"
       t.integer  "pq_kvarh"
       t.integer  "pq_kvah"
-      t.decimal  "pq_pf",                    precision: 10, scale: 2  
+      t.decimal  "pq_pf",                      precision: 10, scale: 2  
       # t.decimal  "kwh_rate_a"                precision: 10, scale: 2  # 4.2097
       # t.decimal  "kwh_rate_b"                precision: 10, scale: 2  # 2.6295
       # t.decimal  "kwh_rate_c"                precision: 10, scale: 2  # 0

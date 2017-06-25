@@ -218,7 +218,7 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.decimal  "pressure",                precision: 10, scale: 2
       t.decimal  "air_temperature",         precision: 10, scale: 2
       t.decimal  "global_insolation",       precision: 10, scale: 2
-      t.decimal  "incident_insolation",     precision: 10, scale: 2 "" # W/sqm
+      t.decimal  "incident_insolation",     precision: 10, scale: 2  # W/sqm
       t.decimal  "ghi",                     precision: 10, scale: 2
       t.decimal  "ghi_avg",                 precision: 10, scale: 2
       t.decimal  "ghi_min",                 precision: 10, scale: 2
@@ -290,7 +290,7 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.decimal  "pressure",                precision: 10, scale: 2
       t.decimal  "air_temperature",         precision: 10, scale: 2
       t.decimal  "global_insolation",       precision: 10, scale: 2
-      t.decimal  "incident_insolation",     precision: 10, scale: 2 "" # W/sqm
+      t.decimal  "incident_insolation",     precision: 10, scale: 2 # W/sqm
       t.decimal  "ghi_min",                 precision: 10, scale: 2
       t.decimal  "ghi_max",                 precision: 10, scale: 2    
       t.decimal  "ird_min",                 precision: 10, scale: 2

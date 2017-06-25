@@ -188,14 +188,14 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.integer  "hour"
       t.integer  "min"
       t.integer  "sec"
-      t.string   "billing_month",       limit: 6, default: ""
+      t.string   "billing_month",           limit: 6, default: ""
       t.integer  "project_id"
       t.integer  "device_id"
       t.integer  "device_type"
       t.integer  "pv_string_id"
       t.integer  "logger_sec"
       t.integer  "logger_type"
-      t.integer  "power",                       default: 0
+      t.integer  "power",                   default: 0
       t.integer  "power_avg"
       t.integer  "power_min"                 
       t.integer  "power_max"
@@ -206,19 +206,19 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.integer  "kwh",                     default: 0 
       t.integer  "kwh_utilise",             default: 0   
       t.boolean  "sky_photo_flag",          default: false
-      t.string   "sky_photo",               limit: 2, default: ""
+      t.string   "sky_photo",               default: ""
       t.boolean  "rain_flag",               default: false,  null: false
       t.decimal  "rain_rate",               precision: 10, scale: 2
       t.decimal  "rain_24h",                precision: 10, scale: 2
       t.integer  "uv_index"
       t.decimal  "wind_speed",              precision: 10, scale: 2
       t.decimal  "wind_gust",               precision: 10, scale: 2
-      t.string   "wind_direction",          limit: 2, default: ""
+      t.string   "wind_direction",          default: ""
       t.integer  "humidity"
       t.decimal  "pressure",                precision: 10, scale: 2
       t.decimal  "air_temperature",         precision: 10, scale: 2
       t.decimal  "global_insolation",       precision: 10, scale: 2
-      t.string   "incident_insolation",     limit: 200, default: "" # W/sqm
+      t.decimal  "incident_insolation",     precision: 10, scale: 2 "" # W/sqm
       t.decimal  "ghi",                     precision: 10, scale: 2
       t.decimal  "ghi_avg",                 precision: 10, scale: 2
       t.decimal  "ghi_min",                 precision: 10, scale: 2
@@ -247,7 +247,9 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.integer  "pq_kw_peak_c"
       t.integer  "pq_kvarh"
       t.integer  "pq_kvah"
-      t.decimal  "pq_pf",                      precision: 10, scale: 2  
+      t.decimal  "pq_pf",                    precision: 10, scale: 2
+      t.jsonb    "inverter"                  null: false, default: '{}'
+      t.jsonb    "string"                    null: false, default: '{}'
     end
     
     add_index "energy_logs", ["created_at"], name: "index_energy_logs_on_created_at", using: :btree
@@ -283,12 +285,12 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.integer  "uv_index"
       t.decimal  "wind_speed",              precision: 10, scale: 2
       t.decimal  "wind_gust",               precision: 10, scale: 2
-      t.string   "wind_direction",          limit: 2, default: ""
+      t.string   "wind_direction",          default: ""
       t.integer  "humidity"
       t.decimal  "pressure",                precision: 10, scale: 2
       t.decimal  "air_temperature",         precision: 10, scale: 2
       t.decimal  "global_insolation",       precision: 10, scale: 2
-      t.string   "incident_insolation",     limit: 200, default: "" # W/sqm
+      t.decimal  "incident_insolation",     precision: 10, scale: 2 "" # W/sqm
       t.decimal  "ghi_min",                 precision: 10, scale: 2
       t.decimal  "ghi_max",                 precision: 10, scale: 2    
       t.decimal  "ird_min",                 precision: 10, scale: 2
@@ -299,7 +301,11 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.jsonb    "opportunity",             null: false, default: '{}'
       t.jsonb    "note",                    null: false, default: '{}'
       t.integer  "billing_read",            default: 0 
-      t.integer  "billing_kwh",             default: 0 
+      t.integer  "billing_kwh",             default: 0
+      t.integer  "inverter_read"            default: 0 
+      t.integer  "inverter_kwh"             default: 0
+      t.jsonb    "inverter"                 null: false, default: '{}'
+      t.jsonb    "string"                   null: false, default: '{}'
       ##opportunity loss
       # dirt loss
       # ac wiring loss

@@ -248,8 +248,8 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.integer  "pq_kvarh"
       t.integer  "pq_kvah"
       t.decimal  "pq_pf",                    precision: 10, scale: 2
-      t.jsonb    "inverter"                  null: false, default: '{}'
-      t.jsonb    "string"                    null: false, default: '{}'
+      t.jsonb    "inverter",                 null: false, default: '{}'
+      t.jsonb    "string",                   null: false, default: '{}'
     end
     
     add_index "energy_logs", ["created_at"], name: "index_energy_logs_on_created_at", using: :btree
@@ -302,10 +302,10 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.jsonb    "note",                    null: false, default: '{}'
       t.integer  "billing_read",            default: 0 
       t.integer  "billing_kwh",             default: 0
-      t.integer  "inverter_read"            default: 0 
-      t.integer  "inverter_kwh"             default: 0
-      t.jsonb    "inverter"                 null: false, default: '{}'
-      t.jsonb    "string"                   null: false, default: '{}'
+      t.integer  "inverter_read",            default: 0 
+      t.integer  "inverter_kwh",             default: 0
+      t.jsonb    "inverter",                 null: false, default: '{}'
+      t.jsonb    "string",                   null: false, default: '{}'
       ##opportunity loss
       # dirt loss
       # ac wiring loss

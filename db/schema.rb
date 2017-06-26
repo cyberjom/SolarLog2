@@ -246,19 +246,19 @@ ActiveRecord::Schema.define(version: 20170609182204) do
     t.integer "kwh", default: 0
     t.integer "kwh_utilise", default: 0
     t.boolean "sky_photo_flag", default: false
-    t.string "sky_photo", limit: 2, default: ""
+    t.string "sky_photo", default: ""
     t.boolean "rain_flag", default: false, null: false
     t.decimal "rain_rate", precision: 10, scale: 2
     t.decimal "rain_24h", precision: 10, scale: 2
     t.integer "uv_index"
     t.decimal "wind_speed", precision: 10, scale: 2
     t.decimal "wind_gust", precision: 10, scale: 2
-    t.string "wind_direction", limit: 2, default: ""
+    t.string "wind_direction", default: ""
     t.integer "humidity"
     t.decimal "pressure", precision: 10, scale: 2
     t.decimal "air_temperature", precision: 10, scale: 2
     t.decimal "global_insolation", precision: 10, scale: 2
-    t.string "incident_insolation", limit: 200, default: ""
+    t.decimal "incident_insolation", precision: 10, scale: 2
     t.decimal "ghi", precision: 10, scale: 2
     t.decimal "ghi_avg", precision: 10, scale: 2
     t.decimal "ghi_min", precision: 10, scale: 2
@@ -288,6 +288,8 @@ ActiveRecord::Schema.define(version: 20170609182204) do
     t.integer "pq_kvarh"
     t.integer "pq_kvah"
     t.decimal "pq_pf", precision: 10, scale: 2
+    t.jsonb "inverter", default: "{}", null: false
+    t.jsonb "string", default: "{}", null: false
     t.index ["billing_month"], name: "index_billing_month_on_created_at"
     t.index ["created_at"], name: "index_energy_logs_on_created_at"
     t.index ["log_at"], name: "index_log_at_on_created_at"
@@ -307,6 +309,7 @@ ActiveRecord::Schema.define(version: 20170609182204) do
     t.decimal "sim_incident_insolation", precision: 10, scale: 2
     t.decimal "sim_effective", precision: 10, scale: 2
     t.string "billing_month", limit: 6, default: ""
+    t.integer "project_id"
     t.integer "power_min"
     t.integer "power_max"
     t.integer "meter_read", default: 0
@@ -320,12 +323,12 @@ ActiveRecord::Schema.define(version: 20170609182204) do
     t.integer "uv_index"
     t.decimal "wind_speed", precision: 10, scale: 2
     t.decimal "wind_gust", precision: 10, scale: 2
-    t.string "wind_direction", limit: 2, default: ""
+    t.string "wind_direction", default: ""
     t.integer "humidity"
     t.decimal "pressure", precision: 10, scale: 2
     t.decimal "air_temperature", precision: 10, scale: 2
     t.decimal "global_insolation", precision: 10, scale: 2
-    t.string "incident_insolation", limit: 200, default: ""
+    t.decimal "incident_insolation", precision: 10, scale: 2
     t.decimal "ghi_min", precision: 10, scale: 2
     t.decimal "ghi_max", precision: 10, scale: 2
     t.decimal "ird_min", precision: 10, scale: 2
@@ -337,6 +340,8 @@ ActiveRecord::Schema.define(version: 20170609182204) do
     t.jsonb "note", default: "{}", null: false
     t.integer "billing_read", default: 0
     t.integer "billing_kwh", default: 0
+    t.jsonb "inverter", default: "{}", null: false
+    t.jsonb "string", default: "{}", null: false
     t.integer "pq_read"
     t.integer "pq_exp_read"
     t.integer "pq_kvarh_read"

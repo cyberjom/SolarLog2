@@ -1,0 +1,2 @@
+class EnergyStat < ApplicationRecord
+end

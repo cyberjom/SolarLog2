@@ -1,0 +1,2 @@
+class EnergyLog < ApplicationRecord
+end

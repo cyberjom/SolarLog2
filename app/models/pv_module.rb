@@ -1,0 +1,2 @@
+class PvModule < ApplicationRecord
+end

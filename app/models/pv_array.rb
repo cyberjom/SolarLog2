@@ -1,0 +1,2 @@
+class PvArray < ApplicationRecord
+end

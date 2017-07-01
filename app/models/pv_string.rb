@@ -1,0 +1,2 @@
+class PvString < ApplicationRecord
+end

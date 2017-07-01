@@ -398,11 +398,11 @@ ActiveRecord::Schema.define(version: 20170609182204) do
   create_table "inverters", force: :cascade do |t|
     t.integer "inverter_model_id"
     t.integer "project_id"
-    t.integer "order_num"
-    t.string "name"
-    t.string "serial_no"
+    t.string "label"
+    t.jsonb "serial_no"
     t.integer "modbus_no"
-    t.date "installation_date"
+    t.date "delivery_date"
+    t.date "installed_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -457,33 +457,6 @@ ActiveRecord::Schema.define(version: 20170609182204) do
     t.index ["firstname", "lastname"], name: "index_operators_on_firstname_and_lastname", unique: true
   end
 
-  create_table "panel_models", force: :cascade do |t|
-    t.integer "brand_id"
-    t.string "name", limit: 100, null: false
-    t.decimal "power"
-    t.decimal "width"
-    t.decimal "height"
-    t.boolean "active_flag", default: true, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "panels", force: :cascade do |t|
-    t.integer "pv_string_id"
-    t.integer "panel_model_id"
-    t.integer "order_num"
-    t.string "serial_no"
-    t.decimal "power_rating"
-    t.date "installation_date"
-    t.decimal "latitude"
-    t.decimal "longitude"
-    t.decimal "direction"
-    t.decimal "incline_direction"
-    t.decimal "incline_altutude"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "photos", force: :cascade do |t|
     t.integer "album_id"
     t.string "description", limit: 500, default: ""
@@ -526,25 +499,102 @@ ActiveRecord::Schema.define(version: 20170609182204) do
     t.index ["caption"], name: "index_provinces_on_caption", unique: true
   end
 
+  create_table "pv_arrays", force: :cascade do |t|
+    t.integer "project_id"
+    t.string "caption", limit: 200, default: "", null: false
+    t.string "description", limit: 500, default: ""
+    t.string "label", limit: 30
+    t.decimal "width"
+    t.decimal "height"
+    t.decimal "collection_area"
+    t.decimal "weight"
+    t.decimal "latitude"
+    t.decimal "longitude"
+    t.decimal "direction"
+    t.decimal "tilt"
+    t.decimal "azimuth"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "pv_locations", force: :cascade do |t|
+    t.integer "project_id"
+    t.integer "pv_string_id"
+    t.integer "order"
+    t.integer "pv_module_id"
+    t.string "label", limit: 30
+    t.boolean "active_flag", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "pv_models", force: :cascade do |t|
+    t.integer "brand_id"
+    t.string "part_no", limit: 100, null: false
+    t.decimal "pmax", precision: 5, scale: 2
+    t.decimal "voc", precision: 5, scale: 2
+    t.decimal "isc", precision: 5, scale: 3
+    t.decimal "vpm", precision: 5, scale: 2
+    t.decimal "ipm", precision: 5, scale: 3
+    t.decimal "efficiency", precision: 5, scale: 3
+    t.decimal "tc_pmax", precision: 5, scale: 3
+    t.decimal "tc_voc", precision: 5, scale: 2
+    t.decimal "tc_vmp", precision: 5, scale: 3
+    t.decimal "tc_isc", precision: 5, scale: 3
+    t.decimal "width"
+    t.decimal "height"
+    t.decimal "weight"
+    t.boolean "active_flag", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "pv_modules", force: :cascade do |t|
     t.integer "project_id"
+    t.integer "pv_model_id"
+    t.integer "pv_string_id"
+    t.integer "pallet_no"
     t.string "serial_no", limit: 30, null: false
+    t.string "uuid", limit: 10, null: false
     t.decimal "pmax", precision: 5, scale: 1
     t.decimal "voc", precision: 5, scale: 2
     t.decimal "isc", precision: 5, scale: 3
     t.decimal "vpm", precision: 5, scale: 2
     t.decimal "ipm", precision: 5, scale: 3
+    t.decimal "ff", precision: 5, scale: 3
+    t.date "delivery_date"
+    t.date "installed_date"
     t.boolean "active_flag", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
   create_table "pv_strings", force: :cascade do |t|
-    t.integer "node_id"
-    t.integer "order_num"
-    t.string "name"
-    t.integer "cable_type_id"
-    t.float "cable_length"
+    t.integer "project_id"
+    t.integer "pv_array_id"
+    t.integer "inverter_id"
+    t.integer "mppt_channel", default: 1, null: false
+    t.integer "pv_model_id"
+    t.string "label", limit: 30
+    t.integer "module_count"
+    t.decimal "pmax"
+    t.decimal "voc"
+    t.decimal "isc", precision: 5, scale: 3
+    t.decimal "vpm"
+    t.decimal "ipm", precision: 5, scale: 3
+    t.decimal "efficiency"
+    t.decimal "tc_pmax", precision: 5, scale: 3
+    t.decimal "tc_voc", precision: 5, scale: 2
+    t.decimal "tc_vmp", precision: 5, scale: 3
+    t.decimal "tc_isc", precision: 5, scale: 3
+    t.decimal "width"
+    t.decimal "height"
+    t.decimal "collection_area"
+    t.decimal "weight"
+    t.integer "cable_minus_sqmm"
+    t.decimal "cable_minus_length"
+    t.integer "cable_plus_sqmm"
+    t.decimal "cable_plus_length"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

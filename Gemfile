@@ -40,6 +40,8 @@ gem "slim-rails"
 gem 'foundation-rails'
 gem 'chartkick'
 gem 'groupdate'
+gem 'hightop'
+gem 'awesome_print'
 
 gem 'therubyracer', git: 'https://github.com/cowboyd/therubyracer.git'
 group :development, :test do

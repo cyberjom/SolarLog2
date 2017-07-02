@@ -386,7 +386,7 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.integer  "inverter_model_id"
       t.integer  "project_id"
       t.string   "label"
-      t.jsonb    "serial_no"
+      t.jsonb    "serial_no",         null: false, default: '{}'
       t.integer  "modbus_no"
       t.date     "delivery_date"
       t.date     "installed_date"
@@ -540,6 +540,7 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.integer  "pv_string_id"  
       t.integer  "order" 
       t.integer  "pv_module_id"
+      t.jsonb    "orientation",   null: false, default: '{}'
       t.string   "label",         limit: 30
       t.boolean  "active_flag",                                    default: true, null: false
       t.datetime "created_at",    null: false

@@ -2,6 +2,51 @@
 require File.expand_path('../../config/environment', __FILE__)
 require 'awesome_print'
 
+tss_project = Project.where(caption: "Factory 703kW").first
+pid = tss_project.id
+
+inverters = [{:label => 'INV01',:key => 'IV1',:model => 'TRIO50',:comm_id => 11},
+              {:label => 'INV02',:key => 'IV2',:model => 'TRIO50',:comm_id => 12},
+              {:label => 'INV03',:key => 'IV3',:model => 'TRIO50',:comm_id => 13},
+              {:label => 'INV04',:key => 'IV4_A',:model => 'PVI10',:comm_id => 14},
+              {:label => 'INV05',:key => 'IV5',:model => 'TRIO50',:comm_id => 15},
+              {:label => 'INV06',:key => 'IV6',:model => 'TRIO50',:comm_id => 16},
+              {:label => 'INV07',:key => 'IV7',:model => 'TRIO50',:comm_id => 17},
+              {:label => 'INV08',:key => 'IV8_A',:model => 'PVI10',:comm_id => 18},
+              {:label => 'INV09',:key => 'IV9',:model => 'TRIO50',:comm_id => 19}, 
+              {:label => 'INV10',:key => 'IV10',:model => 'TRIO50',:comm_id => 20},
+              {:label => 'INV11',:key => 'IV11',:model => 'TRIO50',:comm_id => 21}, 
+              {:label => 'INV12',:key => 'IV12_A',:model => 'PVI10',:comm_id => 22},
+              {:label => 'INV13',:key => 'IV13_A',:model => 'PVI10',:comm_id => 23},
+              {:label => 'INV14',:key => 'IV14',:model => 'TRIO50',:comm_id => 24},
+              {:label => 'INV15',:key => 'IV15',:model => 'TRIO50',:comm_id => 25},
+              {:label => 'INV16',:key => 'IV16',:model => 'TRIO50',:comm_id => 26}, 
+              {:label => 'INV17',:key => 'IV17_A',:model => 'PVI10',:comm_id => 27},
+              {:label => 'INV18',:key => 'IV18_A',:model => 'PVI10',:comm_id => 28}]
+              
+inverters.each do |v|
+  rec = tss_project.inverters.where!(label: v[:label]).first_or_initialize
+  rec.inverter_model_id = (InverterModel.where(name: v[:model]).first).id
+  v.delete(:model)
+  rec.update(v)
+  rec.save
+end
+
+n_array = tss_project.pv_arrays.create!(caption: "North",
+                              description: "Northern Array", 
+                              label: "N",
+                              latitude: tss_project.latitude,
+                              longitude: tss_project.longitude,
+                              tilt: 12,
+                              azimuth: 2)
+                              
+s_array = tss_project.pv_arrays.create!(caption: "South",
+                              description: "Southern Array", 
+                              label: "S",
+                              latitude: tss_project.latitude,
+                              longitude: tss_project.longitude,
+                              tilt: 12,
+                              azimuth: 182)
 pv = Hash.new
 pv_uuid = Hash.new
 pv_string = Hash.new
@@ -21,11 +66,13 @@ File.open('./script/TSS_pv.csv', 'r') do |f1|
   end
 end
 
-pv_model = PvModel.first
+pv_model = PvModel.where(part_no: 'VBHN330SJ47').first
 
 pv_string.each_pair do |k,v|
   if k && k.length > 0
-    string_rec = PvString.where(label: k,project_id: 10).first_or_initialize
+    string_rec = PvString.where(label: k,project_id: pid).first_or_initialize
+    string_rec.pv_array_id = n_array.id if k.to_s[0]=="N"
+    string_rec.pv_array_id = s_array.id if k.to_s[0]=="S"
     string_rec.module_count =  pv_string[k].count
     string_rec.pmax = 0
     string_rec.voc = 0
@@ -48,7 +95,7 @@ pv_string.each_pair do |k,v|
   end
 
   v.each do |m|
-    module_rec = PvModule.where(serial_no: m[2], project_id: 10).first_or_initialize
+    module_rec = PvModule.where(serial_no: m[2], project_id: pid).first_or_initialize
     module_rec.pv_model_id = pv_model.id
     module_rec.pallet_no = m[1].to_i
     module_rec.pmax = m[3].to_i
@@ -81,6 +128,8 @@ pv_string.each_pair do |k,v|
   if string_rec
     string_rec.pmax = (string_rec.vpm*string_rec.ipm).round(2)
     string_rec.efficiency = (string_rec.pmax/string_rec.collection_area/1000).round(4)
+    string_rec.spec_pmax = (string_rec.module_count*pv_model.pmax).round(2)
+    string_rec.spec_efficiency = (string_rec.spec_pmax/string_rec.collection_area/1000).round(4)
     string_rec.collection_area = string_rec.collection_area.round(2)
     # ap string_rec
     string_rec.save
@@ -294,14 +343,25 @@ end
 # ap pv_order
 
 pv_order.each_pair do |k,v|
-  pv_string_rec = PvString.where(label: k.to_s,project_id: 10).first
-  ap pv_string_rec
+  pv_string_rec = PvString.where(label: k.to_s,project_id: pid).first
+  # ap pv_string_rec
   count = 0
   v.each do |uid|
-    pv_module_rec = PvModule.where(uuid: uid.to_s.rjust(4, "0"),project_id: 10, active_flag: true).first
-    rec = PvLocation.where(pv_string_id: pv_string_rec.id, pv_module_id: pv_module_rec.id,project_id: 10).first_or_initialize
-    rec.order = count
-    rec.save
-    count += 1
+    begin
+      pv_module_rec = PvModule.where(uuid: uid.to_s.rjust(4, "0"),project_id: pid, active_flag: true).first
+      rec = PvLocation.where(pv_string_id: pv_string_rec.id, pv_module_id: pv_module_rec.id,project_id: pid).first_or_initialize
+      rec.order = count
+      rec.save
+      count += 1
+    rescue
+      puts uid.to_s.rjust(4, "0")
+    end
   end
 end
+
+
+#
+# "module_count",
+# "pv_pmax",
+# "pv_collection_area",
+# "pv_efficiency",

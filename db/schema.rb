@@ -126,14 +126,6 @@ ActiveRecord::Schema.define(version: 20170609182204) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "brands", force: :cascade do |t|
-    t.string "name", limit: 100, null: false
-    t.boolean "active_flag", default: true, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["name"], name: "index_brands_on_name", unique: true
-  end
-
   create_table "cable_types", force: :cascade do |t|
     t.string "name", limit: 100, null: false
     t.string "conductor_type", limit: 30
@@ -145,12 +137,14 @@ ActiveRecord::Schema.define(version: 20170609182204) do
   end
 
   create_table "customers", force: :cascade do |t|
+    t.string "symbol", limit: 10, null: false
+    t.string "caption", limit: 100, default: "", null: false
+    t.string "caption_en", limit: 100, default: "", null: false
     t.string "firstname", limit: 100, default: "", null: false
     t.string "lastname", limit: 100
     t.boolean "active_flag", default: true, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.index ["firstname", "lastname"], name: "index_customers_on_firstname_and_lastname", unique: true
   end
 
   create_table "devices", force: :cascade do |t|
@@ -161,6 +155,16 @@ ActiveRecord::Schema.define(version: 20170609182204) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_devices_on_user_id", unique: true
+  end
+
+  create_table "distribution_box", force: :cascade do |t|
+    t.integer "project_id"
+    t.integer "po_id"
+    t.date "delivery_date"
+    t.date "installed_date"
+    t.boolean "active_flag", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "document_attachments", force: :cascade do |t|
@@ -188,6 +192,25 @@ ActiveRecord::Schema.define(version: 20170609182204) do
     t.integer "document_type_id"
     t.string "description", limit: 500, default: ""
     t.text "info"
+    t.boolean "active_flag", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "electricity_providers", force: :cascade do |t|
+    t.string "symbol", limit: 10, null: false
+    t.string "name", limit: 200, null: false
+    t.boolean "active_flag", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "electricity_tariffs", force: :cascade do |t|
+    t.integer "electricity_provider_id"
+    t.string "symbol", limit: 10, null: false
+    t.string "caption", limit: 200, null: false
+    t.string "description", limit: 500, default: ""
+    t.jsonb "detail", default: "{}", null: false
     t.boolean "active_flag", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -239,10 +262,14 @@ ActiveRecord::Schema.define(version: 20170609182204) do
     t.integer "power_avg"
     t.integer "power_min"
     t.integer "power_max"
+    t.integer "meter_power"
     t.integer "meter_read", default: 0
     t.integer "meter_kwh", default: 0
+    t.integer "meter_error", default: 0
+    t.integer "inverter_power"
     t.integer "inverter_read", default: 0
     t.integer "inverter_kwh", default: 0
+    t.integer "inverter_error", default: 0
     t.integer "kwh", default: 0
     t.integer "kwh_utilise", default: 0
     t.boolean "sky_photo_flag", default: false
@@ -275,21 +302,24 @@ ActiveRecord::Schema.define(version: 20170609182204) do
     t.decimal "energy_cap", precision: 10, scale: 2
     t.jsonb "opportunity", default: "{}", null: false
     t.jsonb "note", default: "{}", null: false
-    t.integer "pq_read"
-    t.integer "pq_exp_read"
-    t.integer "pq_kvarh_read"
-    t.integer "pq_kwh"
-    t.integer "pq_kwh_a"
-    t.integer "pq_kwh_b"
-    t.integer "pq_kwh_c"
-    t.integer "pq_kw_peak_a"
-    t.integer "pq_kw_peak_b"
-    t.integer "pq_kw_peak_c"
-    t.integer "pq_kvarh"
-    t.integer "pq_kvah"
-    t.decimal "pq_pf", precision: 10, scale: 2
-    t.jsonb "inverter", default: "{}", null: false
-    t.jsonb "string", default: "{}", null: false
+    t.integer "grid_power"
+    t.integer "grid_read"
+    t.integer "grid_exp_read"
+    t.integer "grid_kvarh_read"
+    t.integer "grid_kwh"
+    t.integer "grid_kwh_a"
+    t.integer "grid_kwh_b"
+    t.integer "grid_kwh_c"
+    t.integer "grid_kw_peak_a"
+    t.integer "grid_kw_peak_b"
+    t.integer "grid_kw_peak_c"
+    t.integer "grid_kvarh"
+    t.integer "grid_kvah"
+    t.decimal "grid_pf", precision: 10, scale: 2
+    t.jsonb "mdbs", default: "{}", null: false
+    t.jsonb "inverters", default: "{}", null: false
+    t.jsonb "strings", default: "{}", null: false
+    t.string "updater"
     t.index ["billing_month"], name: "index_billing_month_on_created_at"
     t.index ["created_at"], name: "index_energy_logs_on_created_at"
     t.index ["log_at"], name: "index_log_at_on_created_at"
@@ -304,18 +334,25 @@ ActiveRecord::Schema.define(version: 20170609182204) do
     t.integer "day"
     t.integer "month"
     t.integer "year"
+    t.integer "hour"
+    t.integer "min"
+    t.integer "billing_read", default: 0
+    t.integer "billing_kwh", default: 0
+    t.integer "project_id"
+    t.integer "device_id"
     t.decimal "sim_kwh", precision: 10, scale: 2
     t.decimal "sim_insolation", precision: 10, scale: 2
     t.decimal "sim_incident_insolation", precision: 10, scale: 2
     t.decimal "sim_effective", precision: 10, scale: 2
     t.string "billing_month", limit: 6, default: ""
-    t.integer "project_id"
     t.integer "power_min"
     t.integer "power_max"
     t.integer "meter_read", default: 0
     t.integer "meter_kwh", default: 0
+    t.integer "meter_error", default: 0
     t.integer "inverter_read", default: 0
     t.integer "inverter_kwh", default: 0
+    t.integer "inverter_error", default: 0
     t.integer "kwh", default: 0
     t.integer "kwh_utilise", default: 0
     t.decimal "rain_hour", precision: 10, scale: 2
@@ -338,23 +375,23 @@ ActiveRecord::Schema.define(version: 20170609182204) do
     t.decimal "energy_cap", precision: 10, scale: 2
     t.jsonb "opportunity", default: "{}", null: false
     t.jsonb "note", default: "{}", null: false
-    t.integer "billing_read", default: 0
-    t.integer "billing_kwh", default: 0
-    t.jsonb "inverter", default: "{}", null: false
-    t.jsonb "string", default: "{}", null: false
-    t.integer "pq_read"
-    t.integer "pq_exp_read"
-    t.integer "pq_kvarh_read"
-    t.integer "pq_kwh"
-    t.integer "pq_kwh_a"
-    t.integer "pq_kwh_b"
-    t.integer "pq_kwh_c"
-    t.integer "pq_kw_peak_a"
-    t.integer "pq_kw_peak_b"
-    t.integer "pq_kw_peak_c"
-    t.integer "pq_kvarh"
-    t.integer "pq_kvah"
-    t.decimal "pq_pf", precision: 10, scale: 2
+    t.integer "grid_read"
+    t.integer "grid_exp_read"
+    t.integer "grid_kvarh_read"
+    t.integer "grid_kwh"
+    t.integer "grid_kwh_a"
+    t.integer "grid_kwh_b"
+    t.integer "grid_kwh_c"
+    t.integer "grid_kw_peak_a"
+    t.integer "grid_kw_peak_b"
+    t.integer "grid_kw_peak_c"
+    t.integer "grid_kvarh"
+    t.integer "grid_kvah"
+    t.decimal "grid_pf", precision: 10, scale: 2
+    t.jsonb "mdbs", default: "{}", null: false
+    t.jsonb "inverters", default: "{}", null: false
+    t.jsonb "strings", default: "{}", null: false
+    t.string "updater"
   end
 
   create_table "enums", force: :cascade do |t|
@@ -382,9 +419,10 @@ ActiveRecord::Schema.define(version: 20170609182204) do
   end
 
   create_table "inverter_models", force: :cascade do |t|
-    t.integer "brand_id"
+    t.string "brand"
     t.string "name", limit: 100, null: false
     t.integer "mppt_num"
+    t.decimal "pmax"
     t.integer "modbus_speed"
     t.text "modbus_command"
     t.text "modbus_variable"
@@ -398,9 +436,17 @@ ActiveRecord::Schema.define(version: 20170609182204) do
   create_table "inverters", force: :cascade do |t|
     t.integer "inverter_model_id"
     t.integer "project_id"
-    t.string "label"
-    t.jsonb "serial_no"
-    t.integer "modbus_no"
+    t.integer "po_id"
+    t.string "label", limit: 10, default: "", null: false
+    t.jsonb "serial_no", default: "{}", null: false
+    t.integer "comm_id"
+    t.string "key", limit: 10, default: "", null: false
+    t.integer "module_count", default: 0, null: false
+    t.decimal "pv_pmax", default: "0.0", null: false
+    t.decimal "pv_spec_pmax", default: "0.0", null: false
+    t.decimal "pv_collection_area", default: "0.0", null: false
+    t.decimal "pv_spec_efficiency", default: "0.0", null: false
+    t.json "mppts", default: "{}", null: false
     t.date "delivery_date"
     t.date "installed_date"
     t.datetime "created_at", null: false
@@ -415,6 +461,9 @@ ActiveRecord::Schema.define(version: 20170609182204) do
     t.string "district", limit: 100
     t.integer "province_id"
     t.string "zip_code", limit: 10
+    t.string "country"
+    t.decimal "latitude"
+    t.decimal "longitude"
     t.string "telephone_no", limit: 50
     t.string "fax_no", limit: 50
     t.text "info"
@@ -467,30 +516,30 @@ ActiveRecord::Schema.define(version: 20170609182204) do
   end
 
   create_table "projects", force: :cascade do |t|
+    t.integer "customer_id"
+    t.integer "electricity_tariff_id"
     t.integer "location_id"
     t.integer "logger_no"
-    t.integer "customer_id"
     t.string "caption", limit: 200, default: "", null: false
     t.string "caption_en", limit: 200
     t.bigint "capacity"
-    t.text "info"
-    t.boolean "active_flag", default: true, null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
     t.date "scod"
     t.date "cod"
     t.decimal "latitude", precision: 10, scale: 6
     t.decimal "longitude", precision: 10, scale: 6
     t.integer "billing_cycle", default: 16
-    t.bigint "installed_capacity"
-    t.string "flash_test_file"
     t.decimal "fit_rate", precision: 5, scale: 2
     t.string "gps_key", limit: 50
     t.integer "system_type_id"
-    t.index ["logger_no"], name: "index_projects_on_logger_no", unique: true
+    t.jsonb "info", default: "{}", null: false
+    t.boolean "active_flag", default: true, null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "provinces", force: :cascade do |t|
+    t.string "symbol", limit: 10, default: "", null: false
+    t.string "symbol_en", limit: 10, default: ""
     t.string "caption", limit: 200, default: "", null: false
     t.string "caption_en", limit: 200, default: ""
     t.boolean "active_flag", default: true, null: false
@@ -510,7 +559,6 @@ ActiveRecord::Schema.define(version: 20170609182204) do
     t.decimal "weight"
     t.decimal "latitude"
     t.decimal "longitude"
-    t.decimal "direction"
     t.decimal "tilt"
     t.decimal "azimuth"
     t.datetime "created_at"
@@ -522,6 +570,7 @@ ActiveRecord::Schema.define(version: 20170609182204) do
     t.integer "pv_string_id"
     t.integer "order"
     t.integer "pv_module_id"
+    t.jsonb "orientation", default: "{}", null: false
     t.string "label", limit: 30
     t.boolean "active_flag", default: true, null: false
     t.datetime "created_at", null: false
@@ -529,7 +578,7 @@ ActiveRecord::Schema.define(version: 20170609182204) do
   end
 
   create_table "pv_models", force: :cascade do |t|
-    t.integer "brand_id"
+    t.string "brand"
     t.string "part_no", limit: 100, null: false
     t.decimal "pmax", precision: 5, scale: 2
     t.decimal "voc", precision: 5, scale: 2
@@ -553,6 +602,7 @@ ActiveRecord::Schema.define(version: 20170609182204) do
     t.integer "project_id"
     t.integer "pv_model_id"
     t.integer "pv_string_id"
+    t.integer "po_id"
     t.integer "pallet_no"
     t.string "serial_no", limit: 30, null: false
     t.string "uuid", limit: 10, null: false
@@ -578,11 +628,13 @@ ActiveRecord::Schema.define(version: 20170609182204) do
     t.string "label", limit: 30
     t.integer "module_count"
     t.decimal "pmax"
+    t.decimal "spec_pmax"
     t.decimal "voc"
     t.decimal "isc", precision: 5, scale: 3
     t.decimal "vpm"
     t.decimal "ipm", precision: 5, scale: 3
     t.decimal "efficiency"
+    t.decimal "spec_efficiency"
     t.decimal "tc_pmax", precision: 5, scale: 3
     t.decimal "tc_voc", precision: 5, scale: 2
     t.decimal "tc_vmp", precision: 5, scale: 3

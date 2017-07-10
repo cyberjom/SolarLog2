@@ -1,5 +1,8 @@
 class InitDb < ActiveRecord::Migration[5.1]
   def change
+    
+    # Holiday for tarif for each operator (MEA, PEA)
+    
     create_table "activities", force: :cascade do |t|
       t.integer  "project_id"
       t.date     "activity_date",                               null: false
@@ -82,15 +85,6 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.datetime "updated_at",                                  null: false
     end
 
-    create_table "brands", force: :cascade do |t|
-      t.string   "name",        limit: 100,                null: false
-      t.boolean  "active_flag",             default: true, null: false
-      t.datetime "created_at",                             null: false
-      t.datetime "updated_at",                             null: false
-    end
-
-    add_index "brands", ["name"], name: "index_brands_on_name", unique: true, using: :btree
-
     create_table "cable_types", force: :cascade do |t|
       t.string   "name",           limit: 100,                null: false
       t.string   "conductor_type", limit: 30
@@ -102,14 +96,15 @@ class InitDb < ActiveRecord::Migration[5.1]
     end
 
     create_table "customers", force: :cascade do |t|
+      t.string   "symbol",         limit: 10,               null: false      
+      t.string   "caption",      limit: 100, default: "",   null: false
+      t.string   "caption_en",    limit: 100, default: "",   null: false      
       t.string   "firstname",   limit: 100, default: "",   null: false
       t.string   "lastname",    limit: 100
       t.boolean  "active_flag",             default: true, null: false
       t.datetime "created_at"
       t.datetime "updated_at"
     end
-
-    add_index "customers", ["firstname", "lastname"], name: "index_customers_on_firstname_and_lastname", unique: true, using: :btree
 
     create_table "devices", force: :cascade do |t|
       t.integer  "user_id"
@@ -121,6 +116,17 @@ class InitDb < ActiveRecord::Migration[5.1]
     end
 
     add_index "devices", ["user_id"], name: "index_devices_on_user_id", unique: true, using: :btree
+    
+    create_table "distribution_box", force: :cascade do |t|
+      t.integer  "project_id"
+      t.integer  "po_id"
+      
+      t.date     "delivery_date"
+      t.date     "installed_date"
+      t.boolean  "active_flag",                                    default: true, null: false
+      t.datetime "created_at",                                                    null: false
+      t.datetime "updated_at",                                                    null: false
+    end
 
     create_table "document_attachments", force: :cascade do |t|
       t.integer  "document_id"
@@ -151,6 +157,25 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.boolean  "active_flag",                  default: true, null: false
       t.datetime "created_at",                                  null: false
       t.datetime "updated_at",                                  null: false
+    end
+
+    create_table "electricity_providers", force: :cascade do |t|
+      t.string   "symbol",         limit: 10,               null: false
+      t.string   "name",           limit: 200,              null: false
+      t.boolean  "active_flag",             default: true, null: false
+      t.datetime "created_at",                             null: false
+      t.datetime "updated_at",                             null: false
+    end
+    
+    create_table "electricity_tariffs", force: :cascade do |t|
+      t.integer  "electricity_provider_id"
+      t.string   "symbol",            limit: 10,               null: false
+      t.string   "caption",           limit: 200,              null: false
+      t.string   "description",       limit: 500, default: ""
+      t.jsonb    "detail",                 null: false, default: '{}' 
+      t.boolean  "active_flag",             default: true, null: false
+      t.datetime "created_at",                             null: false
+      t.datetime "updated_at",                             null: false
     end
 
     create_table "energy_days", force: :cascade do |t|
@@ -199,10 +224,14 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.integer  "power_avg"
       t.integer  "power_min"                 
       t.integer  "power_max"
+      t.integer  "meter_power"
       t.integer  "meter_read",              default: 0 
-      t.integer  "meter_kwh",               default: 0 
+      t.integer  "meter_kwh",               default: 0
+      t.integer  "meter_error",             default: 0
+      t.integer  "inverter_power"
       t.integer  "inverter_read",           default: 0 
       t.integer  "inverter_kwh",            default: 0 
+      t.integer  "inverter_error",          default: 0
       t.integer  "kwh",                     default: 0 
       t.integer  "kwh_utilise",             default: 0   
       t.boolean  "sky_photo_flag",          default: false
@@ -213,7 +242,7 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.integer  "uv_index"
       t.decimal  "wind_speed",              precision: 10, scale: 2
       t.decimal  "wind_gust",               precision: 10, scale: 2
-      t.string   "wind_direction",          default: ""
+      t.string   "wind_direction",          default: "" 
       t.integer  "humidity"
       t.decimal  "pressure",                precision: 10, scale: 2
       t.decimal  "air_temperature",         precision: 10, scale: 2
@@ -235,21 +264,24 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.decimal  "energy_cap",              precision: 10, scale: 2
       t.jsonb    "opportunity",             null: false, default: '{}'
       t.jsonb    "note",                    null: false, default: '{}'
-      t.integer  "pq_read"
-      t.integer  "pq_exp_read"
-      t.integer  "pq_kvarh_read"
-      t.integer  "pq_kwh"
-      t.integer  "pq_kwh_a" # peak
-      t.integer  "pq_kwh_b" # patial
-      t.integer  "pq_kwh_c" # off-peak
-      t.integer  "pq_kw_peak_a"
-      t.integer  "pq_kw_peak_b"     
-      t.integer  "pq_kw_peak_c"
-      t.integer  "pq_kvarh"
-      t.integer  "pq_kvah"
-      t.decimal  "pq_pf",                    precision: 10, scale: 2
-      t.jsonb    "inverter",                 null: false, default: '{}'
-      t.jsonb    "string",                   null: false, default: '{}'
+      t.integer  "grid_power"
+      t.integer  "grid_read"
+      t.integer  "grid_exp_read"
+      t.integer  "grid_kvarh_read"
+      t.integer  "grid_kwh"
+      t.integer  "grid_kwh_a" # peak
+      t.integer  "grid_kwh_b" # patial
+      t.integer  "grid_kwh_c" # off-peak
+      t.integer  "grid_kw_peak_a"
+      t.integer  "grid_kw_peak_b"     
+      t.integer  "grid_kw_peak_c"
+      t.integer  "grid_kvarh"
+      t.integer  "grid_kvah"
+      t.decimal  "grid_pf",                    precision: 10, scale: 2
+      t.jsonb    "mdbs",                 null: false, default: '{}'      
+      t.jsonb    "inverters",                 null: false, default: '{}'
+      t.jsonb    "strings",                   null: false, default: '{}'
+      t.string   "updater"
     end
     
     add_index "energy_logs", ["created_at"], name: "index_energy_logs_on_created_at", using: :btree
@@ -266,18 +298,25 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.integer  "day"  
       t.integer  "month"
       t.integer  "year"
+      t.integer  "hour"
+      t.integer  "min"
+      t.integer  "billing_read",            default: 0 
+      t.integer  "billing_kwh",             default: 0
+      t.integer  "project_id"
+      t.integer  "device_id"
       t.decimal  "sim_kwh",                 precision: 10, scale: 2
       t.decimal  "sim_insolation",          precision: 10, scale: 2
       t.decimal  "sim_incident_insolation", precision: 10, scale: 2
       t.decimal  "sim_effective",           precision: 10, scale: 2
       t.string   "billing_month",           limit: 6, default: ""
-      t.integer  "project_id"
       t.integer  "power_min"
       t.integer  "power_max"
       t.integer  "meter_read",              default: 0 
-      t.integer  "meter_kwh",               default: 0 
+      t.integer  "meter_kwh",               default: 0
+      t.integer  "meter_error",             default: 0
       t.integer  "inverter_read",           default: 0 
       t.integer  "inverter_kwh",            default: 0 
+      t.integer  "inverter_error",          default: 0
       t.integer  "kwh",                     default: 0 
       t.integer  "kwh_utilise",             default: 0         
       t.decimal  "rain_hour",               precision: 10, scale: 2
@@ -300,12 +339,23 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.decimal  "energy_cap",              precision: 10, scale: 2
       t.jsonb    "opportunity",             null: false, default: '{}'
       t.jsonb    "note",                    null: false, default: '{}'
-      t.integer  "billing_read",            default: 0 
-      t.integer  "billing_kwh",             default: 0
-      t.integer  "inverter_read",            default: 0 
-      t.integer  "inverter_kwh",             default: 0
-      t.jsonb    "inverter",                 null: false, default: '{}'
-      t.jsonb    "string",                   null: false, default: '{}'
+      t.integer  "grid_read"
+      t.integer  "grid_exp_read"
+      t.integer  "grid_kvarh_read"
+      t.integer  "grid_kwh"
+      t.integer  "grid_kwh_a" # peak
+      t.integer  "grid_kwh_b" # patial
+      t.integer  "grid_kwh_c" # off-peak
+      t.integer  "grid_kw_peak_a"
+      t.integer  "grid_kw_peak_b"     
+      t.integer  "grid_kw_peak_c"
+      t.integer  "grid_kvarh"
+      t.integer  "grid_kvah"
+      t.decimal  "grid_pf",                   precision: 10, scale: 2
+      t.jsonb    "mdbs",                      null: false, default: '{}'      
+      t.jsonb    "inverters",                 null: false, default: '{}'
+      t.jsonb    "strings",                   null: false, default: '{}'
+      t.string   "updater"
       ##opportunity loss
       # dirt loss
       # ac wiring loss
@@ -319,20 +369,6 @@ class InitDb < ActiveRecord::Migration[5.1]
 
       ## Note
       # explain downtime incident     
-      
-      t.integer  "pq_read"
-      t.integer  "pq_exp_read"
-      t.integer  "pq_kvarh_read"
-      t.integer  "pq_kwh"
-      t.integer  "pq_kwh_a" # peak
-      t.integer  "pq_kwh_b" # patial
-      t.integer  "pq_kwh_c" # off-peak
-      t.integer  "pq_kw_peak_a"
-      t.integer  "pq_kw_peak_b"     
-      t.integer  "pq_kw_peak_c"
-      t.integer  "pq_kvarh"
-      t.integer  "pq_kvah"
-      t.decimal  "pq_pf",                      precision: 10, scale: 2  
       # t.decimal  "kwh_rate_a"                precision: 10, scale: 2  # 4.2097
       # t.decimal  "kwh_rate_b"                precision: 10, scale: 2  # 2.6295
       # t.decimal  "kwh_rate_c"                precision: 10, scale: 2  # 0
@@ -369,9 +405,10 @@ class InitDb < ActiveRecord::Migration[5.1]
     add_index "enums", ["human_code"], name: "index_enums_on_human_code", using: :btree
 
     create_table "inverter_models", force: :cascade do |t|
-      t.integer  "brand_id"
+      t.string   "brand"
       t.string   "name",            limit: 100,                null: false
       t.integer  "mppt_num"
+      t.decimal  "pmax"
       t.integer  "modbus_speed"
       t.text     "modbus_command"
       t.text     "modbus_variable"
@@ -385,11 +422,19 @@ class InitDb < ActiveRecord::Migration[5.1]
     create_table "inverters", force: :cascade do |t|
       t.integer  "inverter_model_id"
       t.integer  "project_id"
-      t.integer  "order_num"
-      t.string   "name"
-      t.string   "serial_no"
-      t.integer  "modbus_no"
-      t.date     "installation_date"
+      t.integer  "po_id"
+      t.string   "label",             limit: 10, default: "",   null: false
+      t.jsonb    "serial_no",         null: false, default: '{}'
+      t.integer  "comm_id"
+      t.string   "key",               limit: 10, default: "",   null: false
+      t.integer  "module_count",      default: 0, null: false
+      t.decimal  "pv_pmax",           default: 0, null: false
+      t.decimal  "pv_spec_pmax",           default: 0, null: false     
+      t.decimal  "pv_collection_area",     default: 0, null: false 
+      t.decimal  "pv_spec_efficiency",         default: 0, null: false
+      t.json     "mppts",                 null: false, default: '{}'
+      t.date     "delivery_date"
+      t.date     "installed_date"
       t.datetime "created_at",        null: false
       t.datetime "updated_at",        null: false
     end
@@ -402,6 +447,9 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.string   "district",      limit: 100
       t.integer  "province_id"
       t.string   "zip_code",      limit: 10
+      t.string   "country"
+      t.decimal  "latitude"
+      t.decimal  "longitude"
       t.string   "telephone_no",  limit: 50
       t.string   "fax_no",        limit: 50
       t.text     "info"
@@ -446,31 +494,107 @@ class InitDb < ActiveRecord::Migration[5.1]
 
     add_index "operators", ["firstname", "lastname"], name: "index_operators_on_firstname_and_lastname", unique: true, using: :btree
 
-    create_table "panel_models", force: :cascade do |t|
-      t.integer  "brand_id"
-      t.string   "name",        limit: 100,                null: false
-      t.decimal  "power"
+    create_table "pv_models", force: :cascade do |t|
+      t.string   "brand"
+      t.string   "part_no",        limit: 100,                null: false
+      t.decimal  "pmax",                   precision: 5, scale: 2
+      t.decimal  "voc",                    precision: 5, scale: 2
+      t.decimal  "isc",                    precision: 5, scale: 3
+      t.decimal  "vpm",                    precision: 5, scale: 2
+      t.decimal  "ipm",                    precision: 5, scale: 3
+      t.decimal  "efficiency",             precision: 5, scale: 3
+      t.decimal  "tc_pmax",                precision: 5, scale: 3
+      t.decimal  "tc_voc",                 precision: 5, scale: 2
+      t.decimal  "tc_vmp",                 precision: 5, scale: 3
+      t.decimal  "tc_isc",                 precision: 5, scale: 3      
       t.decimal  "width"
       t.decimal  "height"
+      t.decimal  "weight"
       t.boolean  "active_flag",             default: true, null: false
       t.datetime "created_at",                             null: false
       t.datetime "updated_at",                             null: false
     end
-
-    create_table "panels", force: :cascade do |t|
-      t.integer  "pv_string_id"
-      t.integer  "panel_model_id"
-      t.integer  "order_num"
-      t.string   "serial_no"
-      t.decimal  "power_rating"
-      t.date     "installation_date"
+    
+    create_table "pv_arrays", force: :cascade do |t|
+      t.integer  "project_id"
+      t.string   "caption",            limit: 200,                          default: "",   null: false
+      t.string   "description",        limit: 500, default: ""
+      t.string   "label",              limit: 30
+      t.decimal  "width"
+      t.decimal  "height"
+      t.decimal  "collection_area"
+      t.decimal  "weight"
       t.decimal  "latitude"
       t.decimal  "longitude"
-      t.decimal  "direction"
-      t.decimal  "incline_direction"
-      t.decimal  "incline_altutude"
-      t.datetime "created_at",        null: false
-      t.datetime "updated_at",        null: false
+      t.decimal  "tilt"
+      t.decimal  "azimuth"
+      t.datetime "created_at"
+      t.datetime "updated_at"
+    end
+    
+    create_table "pv_strings", force: :cascade do |t|
+      t.integer  "project_id"
+      t.integer  "pv_array_id"
+      t.integer  "inverter_id"
+      t.integer  "mppt_channel",          default: 1, null: false                
+      t.integer  "pv_model_id"
+      t.string   "label",                 limit: 30
+      t.integer  "module_count"
+      t.decimal  "pmax"
+      t.decimal  "spec_pmax"          
+      t.decimal  "voc"                    
+      t.decimal  "isc",                    precision: 5, scale: 3
+      t.decimal  "vpm"                    
+      t.decimal  "ipm",                    precision: 5, scale: 3
+      t.decimal  "efficiency"
+      t.decimal  "spec_efficiency"
+      t.decimal  "tc_pmax",                precision: 5, scale: 3
+      t.decimal  "tc_voc",                 precision: 5, scale: 2 
+      t.decimal  "tc_vmp",                 precision: 5, scale: 3
+      t.decimal  "tc_isc",                 precision: 5, scale: 3      
+      t.decimal  "width"
+      t.decimal  "height"
+      t.decimal  "collection_area"
+      t.decimal  "weight"
+      t.integer  "cable_minus_sqmm"
+      t.decimal  "cable_minus_length"
+      t.integer  "cable_plus_sqmm"
+      t.decimal  "cable_plus_length"      
+      t.datetime "created_at",    null: false
+      t.datetime "updated_at",    null: false
+    end
+    
+    create_table "pv_modules", force: :cascade do |t|
+      t.integer  "project_id"
+      t.integer  "pv_model_id"
+      t.integer  "pv_string_id"
+      t.integer  "po_id"    
+      t.integer  "pallet_no"
+      t.string   "serial_no",              limit: 30,                                null: false
+      t.string   "uuid",                   limit: 10,                                null: false
+      t.decimal  "pmax",                   precision: 5, scale: 1
+      t.decimal  "voc",                    precision: 5, scale: 2
+      t.decimal  "isc",                    precision: 5, scale: 3
+      t.decimal  "vpm",                    precision: 5, scale: 2
+      t.decimal  "ipm",                    precision: 5, scale: 3
+      t.decimal  "ff",                     precision: 5, scale: 3
+      t.date     "delivery_date"
+      t.date     "installed_date"
+      t.boolean  "active_flag",                                    default: true, null: false
+      t.datetime "created_at",                                                    null: false
+      t.datetime "updated_at",                                                    null: false
+    end
+    
+    create_table "pv_locations", force: :cascade do |t|
+      t.integer  "project_id"
+      t.integer  "pv_string_id"  
+      t.integer  "order" 
+      t.integer  "pv_module_id"
+      t.jsonb    "orientation",   null: false, default: '{}'
+      t.string   "label",         limit: 30
+      t.boolean  "active_flag",                                    default: true, null: false
+      t.datetime "created_at",    null: false
+      t.datetime "updated_at",    null: false
     end
 
     create_table "photos", force: :cascade do |t|
@@ -483,31 +607,30 @@ class InitDb < ActiveRecord::Migration[5.1]
     end
 
     create_table "projects", force: :cascade do |t|
+      t.integer  "customer_id"
+      t.integer  "electricity_tariff_id"
       t.integer  "location_id"
       t.integer  "logger_no"
-      t.integer  "customer_id"
       t.string   "caption",            limit: 200,                          default: "",   null: false
       t.string   "caption_en",         limit: 200
       t.integer  "capacity",           limit: 8
-      t.text     "info"
-      t.boolean  "active_flag",                                             default: true, null: false
-      t.datetime "created_at"
-      t.datetime "updated_at"
       t.date     "scod"
       t.date     "cod"
       t.decimal  "latitude",                       precision: 10, scale: 6
       t.decimal  "longitude",                      precision: 10, scale: 6
       t.integer  "billing_cycle",                                           default: 16
-      t.integer  "installed_capacity", limit: 8
-      t.string   "flash_test_file"
       t.decimal  "fit_rate",                       precision: 5,  scale: 2
       t.string   "gps_key",            limit: 50
       t.integer  "system_type_id"
+      t.jsonb    "info",                 null: false, default: '{}'
+      t.boolean  "active_flag",                                             default: true, null: false
+      t.datetime "created_at"
+      t.datetime "updated_at"
     end
 
-    add_index "projects", ["logger_no"], name: "index_projects_on_logger_no", unique: true, using: :btree
-
     create_table "provinces", force: :cascade do |t|
+      t.string   "symbol",      limit: 10, default: "",   null: false
+      t.string   "symbol_en",   limit: 10, default: ""      
       t.string   "caption",     limit: 200, default: "",   null: false
       t.string   "caption_en",  limit: 200, default: ""
       t.boolean  "active_flag",             default: true, null: false
@@ -516,29 +639,6 @@ class InitDb < ActiveRecord::Migration[5.1]
     end
 
     add_index "provinces", ["caption"], name: "index_provinces_on_caption", unique: true, using: :btree
-
-    create_table "pv_modules", force: :cascade do |t|
-      t.integer  "project_id"
-      t.string   "serial_no",   limit: 30,                                        null: false
-      t.decimal  "pmax",                   precision: 5, scale: 1
-      t.decimal  "voc",                    precision: 5, scale: 2
-      t.decimal  "isc",                    precision: 5, scale: 3
-      t.decimal  "vpm",                    precision: 5, scale: 2
-      t.decimal  "ipm",                    precision: 5, scale: 3
-      t.boolean  "active_flag",                                    default: true, null: false
-      t.datetime "created_at",                                                    null: false
-      t.datetime "updated_at",                                                    null: false
-    end
-
-    create_table "pv_strings", force: :cascade do |t|
-      t.integer  "node_id"
-      t.integer  "order_num"
-      t.string   "name"
-      t.integer  "cable_type_id"
-      t.float    "cable_length"
-      t.datetime "created_at",    null: false
-      t.datetime "updated_at",    null: false
-    end
 
     create_table "system_types", force: :cascade do |t|
       t.string   "caption",       limit: 100, null: false

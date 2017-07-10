@@ -1,0 +1,2 @@
+class ElectricityTariff < ApplicationRecord
+end

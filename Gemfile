@@ -38,6 +38,10 @@ gem 'devise'
 gem 'activeadmin', github: 'activeadmin'
 gem "slim-rails"
 gem 'foundation-rails'
+gem 'chartkick'
+gem 'groupdate'
+gem 'hightop'
+gem 'awesome_print'
 
 gem 'therubyracer', git: 'https://github.com/cowboyd/therubyracer.git'
 group :development, :test do
@@ -47,6 +51,7 @@ group :development, :test do
   gem 'capybara', '~> 2.13'
   gem 'selenium-webdriver'
   gem 'better_errors'
+  gem 'awesome_print'
 end
 
 group :development do

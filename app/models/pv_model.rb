@@ -1,0 +1,2 @@
+class PvModel < ApplicationRecord
+end

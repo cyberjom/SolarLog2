@@ -225,7 +225,7 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.integer  "power_min"                 
       t.integer  "power_max"
       t.integer  "meter_power"
-      t.integer  "meter_read",              default: 0 
+      t.integer  "meter_read"
       t.integer  "meter_kwh",               default: 0
       t.integer  "meter_error",             default: 0
       t.integer  "inverter_power"
@@ -249,13 +249,8 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.decimal  "global_insolation",       precision: 10, scale: 2
       t.decimal  "incident_insolation",     precision: 10, scale: 2  # W/sqm
       t.decimal  "ghi",                     precision: 10, scale: 2
-      t.decimal  "ghi_avg",                 precision: 10, scale: 2
-      t.decimal  "ghi_min",                 precision: 10, scale: 2
-      t.decimal  "ghi_max",                 precision: 10, scale: 2    
       t.decimal  "ird",                     precision: 10, scale: 2
-      t.decimal  "ird_avg",                 precision: 10, scale: 2
-      t.decimal  "ird_min",                 precision: 10, scale: 2
-      t.decimal  "ird_max",                 precision: 10, scale: 2
+      t.jsonb    "irradiation",             null: false, default: '{}'
       t.decimal  "sim",                     precision: 10, scale: 2
       t.decimal  "sim_energy",              precision: 10, scale: 2
       t.decimal  "sim_energy_sum",          precision: 10, scale: 2
@@ -311,7 +306,7 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.string   "billing_month",           limit: 6, default: ""
       t.integer  "power_min"
       t.integer  "power_max"
-      t.integer  "meter_read",              default: 0 
+      t.integer  "meter_read"
       t.integer  "meter_kwh",               default: 0
       t.integer  "meter_error",             default: 0
       t.integer  "inverter_read",           default: 0 

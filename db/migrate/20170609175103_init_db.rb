@@ -255,7 +255,6 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.decimal  "sim_energy",              precision: 10, scale: 2
       t.decimal  "sim_energy_sum",          precision: 10, scale: 2
       t.decimal  "pr",                      precision: 10, scale: 2
-      t.decimal  "ce",                      precision: 10, scale: 2
       t.decimal  "energy_cap",              precision: 10, scale: 2
       t.jsonb    "opportunity",             null: false, default: '{}'
       t.jsonb    "note",                    null: false, default: '{}'
@@ -331,7 +330,6 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.decimal  "ird_min",                 precision: 10, scale: 2
       t.decimal  "ird_max",                 precision: 10, scale: 2
       t.decimal  "pr",                      precision: 10, scale: 2
-      t.decimal  "ce",                      precision: 10, scale: 2
       t.decimal  "energy_cap",              precision: 10, scale: 2
       t.jsonb    "opportunity",             null: false, default: '{}'
       t.jsonb    "note",                    null: false, default: '{}'

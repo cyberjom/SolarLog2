@@ -338,6 +338,7 @@ class InitDb < ActiveRecord::Migration[5.1]
       t.integer  "grid_exp_read"
       t.integer  "grid_kvarh_read"
       t.integer  "grid_kwh"
+      t.integer  "grid_exp_kwh"
       t.integer  "grid_kwh_a" # peak
       t.integer  "grid_kwh_b" # patial
       t.integer  "grid_kwh_c" # off-peak

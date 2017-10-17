@@ -17,6 +17,12 @@ pr = Province.create!(symbol: 'ปจ',
                  caption: 'ปราจีนบุรี', 
                  caption_en: 'Prachinburi')
 
+pr = Province.create!(symbol: 'สป',  
+                symbol_en: 'SP',
+                caption: 'สมุทรปราการ', 
+                caption_en: 'Samuthprakarn')
+                 
+
 InverterModel.create!(brand: 'ABB',
                 name: 'TRIO50', 
                 mppt_num: 1,
@@ -46,13 +52,20 @@ PvModel.create!(brand: 'Panasonic',
                 
 Customer.create!(symbol: "InterSol")
 tss = Customer.create!(symbol: "TSS", caption: "บริษัท ไทยสเตนเลสสตีล จำกัด", caption_en: "Thai Stainless Steel Co., Ltd.")
-Customer.create!(symbol: "Tefcoat")
 tss.projects.create!(caption: "Factory 703kW", 
                      capacity: 330*2132,    
                      scod: "2017-03-31",
                      cod: "2017-05-20",
                      latitude: 13.975865,   
                      longitude: 100.212272,
+                     billing_cycle: 1)
+tc = Customer.create!(symbol: "Tefcoat")
+tss.projects.create!(caption: "Factory 14B 303kW", 
+                     capacity: 330*934,    
+                     scod: "2017-03-31",
+                     cod: "2017-10-10",
+                     latitude: 13.60,   
+                     longitude: 100.61,
                      billing_cycle: 1)
 
 

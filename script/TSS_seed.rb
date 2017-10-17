@@ -30,6 +30,7 @@ inverters.each do |v|
   v.delete(:model)
   rec.update(v)
   rec.save
+  v[:rec_id] = rec.id
 end
 
 n_array = tss_project.pv_arrays.create!(caption: "North",

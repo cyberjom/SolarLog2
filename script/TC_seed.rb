@@ -11,6 +11,8 @@ inverters = [{:label => 'INV01',:key => 'IV1',:model => 'TRIO50',:comm_id => 11}
               {:label => 'INV04',:key => 'IV4',:model => 'TRIO50',:comm_id => 14},
               {:label => 'INV05',:key => 'IV5',:model => 'TRIO50',:comm_id => 15},
               {:label => 'INV06',:key => 'IV6',:model => 'TRIO50',:comm_id => 16}]
+
+inv_lookup = []
               
 inverters.each do |v|
   rec = tc_project.inverters.where!(label: v[:label]).first_or_initialize
@@ -18,6 +20,8 @@ inverters.each do |v|
   v.delete(:model)
   rec.update(v)
   rec.save
+  v[:rec_id] = rec.id
+  inv_lookup[v[:comm_id]-10] = rec.id
 end
 
 e_array = tc_project.pv_arrays.create!(caption: "East",
@@ -54,13 +58,15 @@ File.open('./script/TC_pv.csv', 'r') do |f1|
   end
 end
 
+# ap pv_string
+
 pv_model = PvModel.where(part_no: 'VBHN330SJ47').first
 
 pv_string.each_pair do |k,v|
   if k && k.length > 0
     string_rec = PvString.where(label: k,project_id: pid).first_or_initialize
-    string_rec.pv_array_id = e_array.id if k.to_s[0]=="E"
-    string_rec.pv_array_id = w_array.id if k.to_s[0]=="W"
+    string_rec.pv_array_id = e_array.id if ["D", "E", "F"].include? k.to_s[0]
+    string_rec.pv_array_id = w_array.id if ["A", "B", "C"].include? k.to_s[0]
     string_rec.module_count =  pv_string[k].count
     string_rec.pmax = 0
     string_rec.voc = 0
@@ -95,7 +101,7 @@ pv_string.each_pair do |k,v|
     module_rec.uuid  = m[12]
     if string_rec
       module_rec.pv_string_id = string_rec.id
-      string_rec.inverter_id  = m[13].to_i
+      string_rec.inverter_id  = inv_lookup[m[13].to_i]
       string_rec.voc += module_rec.voc
       string_rec.isc = module_rec.isc if string_rec.isc > module_rec.isc
       string_rec.vpm += module_rec.vpm
@@ -119,8 +125,8 @@ pv_string.each_pair do |k,v|
     string_rec.spec_pmax = (string_rec.module_count*pv_model.pmax).round(2)
     string_rec.spec_efficiency = (string_rec.spec_pmax/string_rec.collection_area/1000).round(4)
     string_rec.collection_area = string_rec.collection_area.round(2)
-    ap string_rec
-    # string_rec.save
+    # ap string_rec
+    string_rec.save
   end
 end
 

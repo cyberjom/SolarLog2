@@ -2,6 +2,20 @@
 require File.expand_path('../../config/environment', __FILE__)
 require 'awesome_print'
 
+pr = Province.create!(symbol: 'สป',  
+                symbol_en: 'SP',
+                caption: 'สมุทรปราการ', 
+                caption_en: 'Samuthprakarn')
+
+tc = Customer.create!(symbol: "Tefcoat", caption: "บริษัท เทฟโค๊ต จำกัด", caption_en: "Tefcoat Co., Ltd.")
+tc.projects.create!(caption: "Factory 14B 303kW", 
+                     capacity: 330*934,    
+                     scod: "2017-03-31",
+                     cod: "2017-10-10",
+                     latitude: 13.60,   
+                     longitude: 100.61,
+                     billing_cycle: 1)
+
 tc_project = Project.where(caption: "Factory 14B 303kW").first
 pid = tc_project.id
 
